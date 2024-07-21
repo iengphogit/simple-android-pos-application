@@ -30,6 +30,7 @@ import java.util.concurrent.Executors;
 
 public class CategoriesActivity extends AppCompatActivity {
 
+    //Todo action..!
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
