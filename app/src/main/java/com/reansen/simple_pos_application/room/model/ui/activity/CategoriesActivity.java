@@ -22,6 +22,7 @@ import com.reansen.simple_pos_application.R;
 import com.reansen.simple_pos_application.room.model.Navigator;
 import com.reansen.simple_pos_application.room.model.adapter.CategoriesAdapter;
 import com.reansen.simple_pos_application.room.model.room.POSDatabase;
+import com.reansen.simple_pos_application.room.model.room.dao.CategoryDao;
 import com.reansen.simple_pos_application.room.model.room.entity.CategoryEntity;
 
 import java.util.List;
@@ -120,7 +121,7 @@ public class CategoriesActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // Confirmation dialog before deleting (recommended)
-                confirmDeleteItem();
+                confirmDeleteItem(categoryEntity);
             }
         });
 
@@ -129,12 +130,19 @@ public class CategoriesActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void confirmDeleteItem() {
+    private void confirmDeleteItem(CategoryEntity categoryEntity) {
+
+        POSDatabase database = POSDatabase.getInstance(this);
+        CategoryDao categoryDao = database.categoryDao();
+
+
         // Create a confirmation dialog builder
         AlertDialog.Builder confirmBuilder = new AlertDialog.Builder(this);
 
         confirmBuilder.setTitle("Confirm Delete");
         confirmBuilder.setMessage("Are you sure you want to delete this item?");
+
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         // Set positive button for confirmation
         confirmBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -143,6 +151,10 @@ public class CategoriesActivity extends AppCompatActivity {
                 // Perform delete operation here
                 // For example:
                 // deleteItem(itemId); // Replace with your actual delete logic
+                executorService.execute(() -> {
+                    categoryDao.delete(categoryEntity);
+                    bindAdapterData();
+                });
                 Toast.makeText(CategoriesActivity.this, "Item deleted!", Toast.LENGTH_SHORT).show();
             }
         });
